@@ -6,7 +6,6 @@ const uuid = require('uuid/v1');
 const PORT = 3001;
 // Create a new express server
 const server = express()
-  // Make the express server serve static assets (html, javascript, css) from the /public folder
   .use(express.static('public'))
   .listen(PORT, '0.0.0.0', 'localhost', () => console.log(`Listening on ${ PORT }`));
 
@@ -14,24 +13,11 @@ const server = express()
 const wss = new SocketServer.Server({ server });
 
 
-// function broadcast(data) {
-//   wss.clients.forEach(function each(client) {
-// };
-
-
-
-//     if (client.readyState === wss.OPEN) {
-//       client.send(stringMessageWithID);
-//     }
-//   });
 function broadcast(data) {
   for (let client of wss.clients) {
     let stringMessageWithID = JSON.stringify(data);
-    console.log("client ---", SocketServer.OPEN);
     if (client.readyState === SocketServer.OPEN) {
-      
       client.send(stringMessageWithID);
-      console.log("sent a message");
     }
   }
 }
@@ -40,16 +26,37 @@ function broadcast(data) {
 function handleMessage(data) {
   const message = JSON.parse(data);
   message.id = uuid();
+  if (message.type === 'postMessage'){
+    message.type = 'incomingMessage';
+  } else if (message.type === 'postNotification') {
+    message.type = 'incomingNotification';
+  }
   broadcast(message);
+}
+
+function makeUserCountMessage(usersOnlineUpdate) {
+  const type = 'usersCount';
+  return {
+    type,
+    usersOnlineUpdate
+  };
+}
+function updatUserNumberStatus() {
+  const currentUsersNumber = makeUserCountMessage(wss.clients.size.toString());
+  broadcast(currentUsersNumber);
   
 }
 
+function handleDisonnection(client) {
+  updatUserNumberStatus();
+}
+
 function handleConnection (client) {
-  console.log('Client connected', 'we are' + wss.clients.size);
+  updatUserNumberStatus();
   client.on('message', handleMessage);
   
   // Set up a callback for when a client closes the socket. This usually means they closed their browser.
-  wss.on('close', () => console.log('Client disconnected'));
+  client.on('close', handleDisonnection );
 }
 
 wss.on('connection', handleConnection);
