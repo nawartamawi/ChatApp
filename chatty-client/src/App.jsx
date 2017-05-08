@@ -42,7 +42,7 @@ class App extends Component {
         throw new Error('Unknown Data type ' + incomingMessge.type);
     }
 
-    }
+  }
   }
 
   makeMessage(content) {

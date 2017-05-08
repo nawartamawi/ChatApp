@@ -3,7 +3,7 @@ const SocketServer = require('ws');
 const uuid = require('uuid/v1');
 
 // Set the port to 3001
-const PORT = 3001;
+const PORT = 3003;
 // Create a new express server
 const server = express()
   .use(express.static('public'))
