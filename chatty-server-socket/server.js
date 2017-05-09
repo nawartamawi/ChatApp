@@ -3,7 +3,7 @@ const SocketServer = require('ws');
 const uuid = require('uuid/v1');
 
 // Set the port to 3001
-const PORT = 3003;
+const PORT = 3001;
 // Create a new express server
 const server = express()
   .use(express.static('public'))
@@ -41,18 +41,18 @@ function makeUserCountMessage(usersOnlineUpdate) {
     usersOnlineUpdate
   };
 }
-function updatUserNumberStatus() {
+function updateUserNumberStatus() {
   const currentUsersNumber = makeUserCountMessage(wss.clients.size.toString());
   broadcast(currentUsersNumber);
   
 }
 
 function handleDisonnection(client) {
-  updatUserNumberStatus();
+  updateUserNumberStatus();
 }
 
-function handleConnection (client) {
-  updatUserNumberStatus();
+function handleConnection(client) {
+  updateUserNumberStatus();
   client.on('message', handleMessage);
   
   // Set up a callback for when a client closes the socket. This usually means they closed their browser.
